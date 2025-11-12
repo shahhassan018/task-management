@@ -11,9 +11,22 @@ let tasksStore: Task[] = [];
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await new Promise(resolve => setTimeout(resolve, 500)); 
 
-    if (req.method === HttpMethod.GET) {
-        // GET: Fetch all tasks
-        return res.status(200).json(tasksStore);
+    const { search } = req.query;
+
+    // GET: Fetch all or filtered tasks
+  if (req.method === HttpMethod.GET) {
+        let filteredTasks = tasksStore;
+
+        // If a search query exists, filter the tasks
+        if (search && typeof search === 'string') {
+            const searchTerm = search.toLowerCase();
+            filteredTasks = tasksStore.filter(task => 
+                task.title.toLowerCase().includes(searchTerm) || 
+                task.description.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        return res.status(200).json(filteredTasks);
 
     } else if (req.method === HttpMethod.POST) {
         // POST: Add a new task
@@ -40,12 +53,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Apply updates
         tasksStore[index] = {
             ...tasksStore[index],
-            // Use nullish coalescing (??) to keep old value if new value is not provided
             title: title ?? tasksStore[index].title,
             description: description ?? tasksStore[index].description,
             priority: priority ?? tasksStore[index].priority,
             dueDate: dueDate ?? tasksStore[index].dueDate,
-            // Update completion status only if the 'isCompleted' field is explicitly present
             isCompleted: isCompleted !== undefined ? isCompleted : tasksStore[index].isCompleted,
         };
 

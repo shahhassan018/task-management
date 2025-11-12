@@ -1,9 +1,10 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const FETCH_TASKS_LIST = `${BASE_URL}/tasks/fetchTasks`;
-const ADD_TASK = '${BASE_URL}/tasks/addTask';
-const TOGGLE_TASK = '${BASE_URL}/tasks/toggleTask';
-const DELETE_TASK = '${BASE_URL}/tasks/deleteTask';
+const ADD_TASK = `${BASE_URL}/tasks/addTask`;
+const TOGGLE_TASK = `${BASE_URL}/tasks/toggleTask`;
+const EDIT_TASK = `${BASE_URL}/tasks/editTask`;
+const DELETE_TASK = `${BASE_URL}/tasks/deleteTask`;
 const API_URL = '/api/tasks';
 
 
@@ -12,6 +13,7 @@ export {
     FETCH_TASKS_LIST,
     ADD_TASK,
     TOGGLE_TASK,
+    EDIT_TASK,
     DELETE_TASK,
     API_URL
 }  

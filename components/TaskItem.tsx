@@ -1,8 +1,12 @@
-// components/TaskItem.tsx
-import React from 'react';
+'use client'
+
+import React, { useState } from 'react';
 import { useAppDispatch } from '../store/hooks';
 import { toggleTaskAsync, deleteTaskAsync } from '../store/tasksSlice';
-import { Task, TaskPriority } from '../types';
+import { Task } from '../types';
+import { getPriorityColor } from '../helpers';
+import EditTaskModal from './EditTaskModal';
+
 import { 
     ListItem, 
     ListItemText, 
@@ -14,7 +18,7 @@ import {
     Box 
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getPriorityColor } from '../helpers'; // <-- Assuming helper function is imported
+import EditIcon from '@mui/icons-material/Edit'; // <-- IMPORT EDIT ICON
 
 // Define props for the component
 interface TaskItemProps {
@@ -25,6 +29,9 @@ export default function TaskItem({ task }: TaskItemProps) {
   const dispatch = useAppDispatch();
   const priorityStyle = getPriorityColor(task.priority);
   
+  // State to control the Edit Modal
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+
   const handleToggle = () => {
     dispatch(toggleTaskAsync(task));
   };
@@ -32,77 +39,107 @@ export default function TaskItem({ task }: TaskItemProps) {
   const handleDelete = () => {
     dispatch(deleteTaskAsync(task.id));
   };
+  
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   return (
-    <ListItem
-      secondaryAction={
-        <IconButton edge="end" aria-label="delete" onClick={handleDelete} color="error">
-          <DeleteIcon />
-        </IconButton>
-      }
-      sx={{ 
-        border: `1px solid ${task.isCompleted ? 'success.main' : 'primary.main'}`, 
-        borderRadius: 1, 
-        mb: 1,
-        backgroundColor: task.isCompleted ? '#f0fff0' : '#ffffff',
-        opacity: task.isCompleted ? 0.7 : 1,
-        transition: 'all 0.3s ease-in-out',
-      }}
-    >
-      <ListItemIcon>
-        <Checkbox
-          edge="start"
-          checked={task.isCompleted}
-          tabIndex={-1}
-          disableRipple
-          onChange={handleToggle}
-          color="primary"
-        />
-      </ListItemIcon>
-      <ListItemText
-        primary={
-            <Typography 
-                variant="h6"
-                sx={{ textDecoration: task.isCompleted ? 'line-through' : 'none' }}
-            >
-                {task.title}
-            </Typography>
-        }
-        secondary={
-            // 1. Outer Box (Wrapper): Must be <span> to be the immediate child of the parent <p>
-            <Box component="span"> 
-                {/* Description */}
-                <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    component="span" // 2. Description Typography: Must be <span>
+    <>
+      <ListItem
+        secondaryAction={
+            <Box>
+                {/* 1. EDIT BUTTON */}
+                <IconButton 
+                    edge="end" 
+                    aria-label="edit" 
+                    onClick={handleOpenModal} 
+                    color="primary"
+                    sx={{ mr: 1 }}
                 >
-                    {task.description}
-                </Typography>
+                    <EditIcon />
+                </IconButton>
                 
-                {/* Priority Chip and Due Date container */}
-                <Box 
-                    component="span" // 3. Inner Box: Must be <span>
-                    sx={{ mt: 1, display: 'flex', gap: 1.5, alignItems: 'center' }}
+                {/* 2. DELETE BUTTON */}
+                <IconButton 
+                    edge="end" 
+                    aria-label="delete" 
+                    onClick={handleDelete} 
+                    color="error"
                 >
-                    <Chip 
-                        component="span" // 4. Chip: Must be <span>
-                        label={`Priority: ${priorityStyle.label}`} 
-                        color={priorityStyle.color} 
-                        size="small" 
-                        variant="outlined" 
-                    />
-                    <Typography variant="caption" color="text.hint" sx={{ fontWeight: 'bold' }}>
-                        Due: {new Date(task.dueDate).toLocaleDateString()}
-                    </Typography>
-                </Box>
+                    <DeleteIcon />
+                </IconButton>
             </Box>
         }
         sx={{ 
-            color: task.isCompleted ? 'text.secondary' : 'text.primary',
-            ml: 1
+          border: `1px solid ${task.isCompleted ? 'success.main' : 'primary.main'}`, 
+          borderRadius: 1, 
+          mb: 1,
+          backgroundColor: task.isCompleted ? '#f0fff0' : '#ffffff',
+          opacity: task.isCompleted ? 0.7 : 1,
+          transition: 'all 0.3s ease-in-out',
         }}
+      >
+        <ListItemIcon>
+          <Checkbox
+            edge="start"
+            checked={task.isCompleted}
+            tabIndex={-1}
+            disableRipple
+            onChange={handleToggle}
+            color="primary"
+          />
+        </ListItemIcon>
+        <ListItemText
+          primary={
+              <Typography 
+                  variant="h6"
+                  sx={{ textDecoration: task.isCompleted ? 'line-through' : 'none' }}
+              >
+                  {task.title}
+              </Typography>
+          }
+          secondary={
+              <Box component="span"> 
+                  {/* Description */}
+                  <Typography 
+                      variant="body2" 
+                      color="text.secondary" 
+                      component="span" 
+                  >
+                      {task.description}
+                  </Typography>
+                  
+                  {/* Priority Chip and Due Date container */}
+                  <Box 
+                      component="span" 
+                      sx={{ mt: 1, display: 'flex', gap: 1.5, alignItems: 'center' }}
+                  >
+                      <Chip 
+                          component="span" 
+                          label={`Priority: ${priorityStyle.label}`} 
+                          color={priorityStyle.color} 
+                          size="small" 
+                          variant="outlined" 
+                      />
+                      <Typography variant="caption" color="text.hint" sx={{ fontWeight: 'bold' }}>
+                          Due: {new Date(task.dueDate).toLocaleDateString()}
+                      </Typography>
+                  </Box>
+              </Box>
+          }
+          sx={{ 
+              color: task.isCompleted ? 'text.secondary' : 'text.primary',
+              ml: 1
+          }}
+        />
+      </ListItem>
+      
+      {/* Edit Modal Component */}
+      <EditTaskModal 
+        task={task} 
+        open={isModalOpen} 
+        onClose={handleCloseModal} 
       />
-    </ListItem>
+    </>
   );
 }

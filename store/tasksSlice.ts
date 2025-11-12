@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Task, TasksState, TaskFormData } from '../types';
-import { ADD_TASK, API_URL, DELETE_TASK, FETCH_TASKS_LIST, TOGGLE_TASK } from '../constants/apiConstants';
+import { ADD_TASK, API_URL, DELETE_TASK, EDIT_TASK, FETCH_TASKS_LIST, TOGGLE_TASK } from '../constants/apiConstants';
 import { HttpMethod } from '../types/api';
 
 // (API Calls)
@@ -29,6 +29,17 @@ export const toggleTaskAsync = createAsyncThunk(TOGGLE_TASK, async (task: Task) 
     });
     if (!response.ok) throw new Error('Failed to toggle task status.');
     return (await response.json()) as Task;
+});
+
+export const editTaskAsync = createAsyncThunk(EDIT_TASK, async (payload: Task) => {
+    // Send the full updated task object
+    const response = await fetch(API_URL, {
+        method: HttpMethod.PUT,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error('Failed to edit task.');
+    return (await response.json()) as Task; 
 });
 
 export const deleteTaskAsync = createAsyncThunk(DELETE_TASK, async (id: string) => {
@@ -65,6 +76,7 @@ export const tasksSlice = createSlice({
             state.isLoading = false;
             state.error = action.error.message || 'Failed to load tasks.';
         })
+
     // Handle Add Task
         .addCase(addTaskAsync.pending, (state) => {
              state.isLoading = true;
@@ -77,6 +89,7 @@ export const tasksSlice = createSlice({
             state.isLoading = false;
             state.error = action.error.message || 'Failed to add task.';
         })
+        
     // Handle Toggle Task
         .addCase(toggleTaskAsync.fulfilled, (state, action: PayloadAction<Task>) => {
             const index = state.tasks.findIndex(t => t.id === action.payload.id);
@@ -84,6 +97,15 @@ export const tasksSlice = createSlice({
                 state.tasks[index] = action.payload;
             }
         })
+
+    // Handle Edit Task
+        .addCase(editTaskAsync.fulfilled, (state, action: PayloadAction<Task>) => {
+            const index = state.tasks.findIndex(t => t.id === action.payload.id);
+            if (index !== -1) {
+                state.tasks[index] = action.payload; 
+            }
+        })
+
     // Handle Delete Task
         .addCase(deleteTaskAsync.fulfilled, (state, action: PayloadAction<string>) => {
             state.tasks = state.tasks.filter(t => t.id !== action.payload);

@@ -81,19 +81,19 @@ export default function TaskManager({ initialTasks, ssrError }: TaskManagerProps
   return (
     <Container maxWidth="md">
       <Head>
-        <title>🌐 Next.js API & Redux Task Manager</title>
+        <title>Task Management</title>
       </Head>
 
       <Box sx={{ my: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom align="center">
-          🌐 API Task Manager
+          Task Management 
         </Typography>
 
         {/* Task Creation Form */}
         <TaskForm />
 
         <Typography variant="h4" component="h2" sx={{ mt: 4, mb: 2 }}>
-          Task List
+          Task(s) List
         </Typography>
 
         {/* Search/Filter Input */}

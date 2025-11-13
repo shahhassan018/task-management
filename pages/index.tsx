@@ -122,8 +122,8 @@ export default function TaskManager({ initialTasks, ssrError }: TaskManagerProps
 export const getServerSideProps: GetServerSideProps<TaskManagerProps> = async (context) => {
     try {
         const baseUrl = process.env.NODE_ENV === 'development'
-            ? 'http://localhost:3001'
-            : 'YOUR_PRODUCTION_URL'; 
+            ? 'http://localhost:3000'
+            : process.env.URL;
 
         const response = await fetch(`${baseUrl}${API_URL}`);
         

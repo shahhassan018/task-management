@@ -10,7 +10,7 @@ npm install
 
 ## 2nd Step
 
-Second, run the server:
+Second, run the server on localhost: 3000 because i set this ip in api:
 
 ```bash
 npm run dev

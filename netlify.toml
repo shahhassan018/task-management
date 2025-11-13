@@ -1,0 +1,9 @@
+[build]
+  # Next.js build command
+  command = "npm run build"
+  # Next.js default output directory
+  publish = ".next"
+
+# Configuration for Next.js features (SSR/Functions)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
